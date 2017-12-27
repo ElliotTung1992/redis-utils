@@ -60,11 +60,19 @@ public class Chapter01 {
     }
 
     public List<Map<String,String>> getGroupArticles(Jedis conn, String group, int page) {
-        return getGroupArticles(conn, group, page, "score:");
+        return getGroupArticles(conn, group, page, "score");
     }
 
+    /**
+     * set（group:new-group）文章分组 && sset(score)文章得分 取交集排序
+     * @param conn
+     * @param group
+     * @param page
+     * @param order
+     * @return
+     */
     public List<Map<String,String>> getGroupArticles(Jedis conn, String group, int page, String order) {
-        String key = order + group;
+        String key = order + ":" + group;
         if (!conn.exists(key)) {
             ZParams params = new ZParams().aggregate(ZParams.Aggregate.MAX);
             conn.zinterstore(key, params, "group:" + group, order);
