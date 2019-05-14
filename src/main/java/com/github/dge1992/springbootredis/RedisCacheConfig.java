@@ -10,7 +10,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
- * @Author dongganene
+ * @Author dongganen
  * @Description
  * @Date 2019/4/29
  **/

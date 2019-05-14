@@ -37,7 +37,6 @@ public class TestController {
         map2.put("address", "上海");
         map2.put("tel", "110");
         return catchManage.unionMap(map1, map2);
-
 //        redisTemplate.multi();
 //        redisTemplate.opsForValue().set("test", "test");
 //        redisTemplate.delete("test");

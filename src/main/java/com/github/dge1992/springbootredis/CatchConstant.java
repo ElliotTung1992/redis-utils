@@ -6,7 +6,7 @@ package com.github.dge1992.springbootredis;
  * @Date 2019/5/7
  **/
 public abstract class CatchConstant {
-    //hash类型的随机值
-    public static final String HASHRANDOMKEY = "randomKey";
+    /****类型****/
+    public static final String HASHRANDOMKEY = "randomKey"; //hash类型的随机key值
     public static final String ID = "id";
 }

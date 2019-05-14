@@ -62,15 +62,15 @@ public class RedisCatchManage implements CatchManage{
     /**
      * @author dongganen
      * @date 2019/5/13
-     * @desc: set数据类型 交集 差集 并集公共部门
+     * @desc: set数据类型 交集 差集 并集公共部分
      */
     public String[] setMapCommon(Map<String, Object> map1, Map<String, Object> map2){
         String diffKeyOne = CommonUils.getUUID();
         String diffKeyTwo = CommonUils.getUUID();
         map1.entrySet().stream().forEach(e -> redisTemplate.opsForSet().add(diffKeyOne,e.getKey() + ":" + e.getValue()));
         map2.entrySet().stream().forEach(e -> redisTemplate.opsForSet().add(diffKeyTwo,e.getKey() + ":" + e.getValue()));
-        this.expire(diffKeyOne, 60000);
-        this.expire(diffKeyTwo, 60000);
+        this.expire(diffKeyOne, TimeEnum.ONE_MINUTE.getKey());
+        this.expire(diffKeyTwo, TimeEnum.ONE_MINUTE.getKey());
         return new String[]{diffKeyOne, diffKeyTwo};
     }
 
