@@ -1,16 +1,22 @@
 package com.github.dge1992.springbootredis;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @Author dge1992
- * @Description
+ * @Description Redis缓存管理类
  * @Date 2019/5/6
  **/
 @Component
@@ -27,6 +33,16 @@ public class RedisCatchManage implements CatchManage{
     @Override
     public void expire(String key, long timeout){
         redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * @param key
+     * @param value
+     * @param <V>
+     */
+    @Override
+    public <V> void set(String key, V value) {
+        redisTemplate.opsForValue().set(key, value);
     }
 
     /**
@@ -109,4 +125,33 @@ public class RedisCatchManage implements CatchManage{
         Set union = redisTemplate.opsForSet().union(keys[0], keys[1]);
         return (List) union.stream().map(e -> e.toString().split(":")[0]).collect(Collectors.toList());
     }
+
+    /**
+     * @param pattern
+     * @param count
+     * @return
+     * @desc: key模糊查询 + 分页
+     */
+    @Override
+    public Set scan(String pattern, Integer count){
+        Integer mark = Optional.ofNullable(count).orElse(0);
+        Set<Object> set = (Set<Object>)redisTemplate.execute((RedisCallback) (connection) -> {
+            Set<Object> binaryKeys = new HashSet<>();
+            Cursor<byte[]> cursor = connection.scan( new ScanOptions.ScanOptionsBuilder().match(pattern).count(1000).build());
+            if(mark == 0){
+                while (cursor.hasNext()) {
+                    binaryKeys.add(new String(cursor.next()));
+                }
+                return binaryKeys;
+            }
+            IntStream.range(0, count).forEach(e -> {
+                if(cursor.hasNext()){
+                    binaryKeys.add(new String(cursor.next()));
+                }
+            });
+            return binaryKeys;
+        });
+        return set;
+    }
+
 }

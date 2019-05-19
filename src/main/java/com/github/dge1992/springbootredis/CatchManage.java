@@ -2,10 +2,13 @@ package com.github.dge1992.springbootredis;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface CatchManage {
 
     void expire(String key, long timeout);
+
+    <V> void set(String key, V value);
 
     <V> void set(String key, V value, long timeout);
 
@@ -16,4 +19,6 @@ public interface CatchManage {
     List interMap(Map<String, Object> map1, Map<String, Object> map2);
 
     List unionMap(Map<String, Object> map1, Map<String, Object> map2);
+
+    public Set scan(String pattern, Integer count);
 }
