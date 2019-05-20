@@ -1,8 +1,6 @@
 package com.github.dge1992.springbootredis;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -57,11 +55,58 @@ public class RedisCatchManage implements CatchManage{
 
     /**
      * @author dongganen
+     * @date 2019/5/20
+     * @desc: 批量导入 数据不宜超过10w
+     */
+    @Override
+    public <V> void mset(Map<String, V> map){
+        redisTemplate.opsForValue().multiSet(map);
+    }
+
+    /**
+     * @param pattern
+     * @param count
+     * @return
+     * @desc: key模糊查询 + 分页
+     */
+    @Override
+    public Set scan(String pattern, Integer count){
+        Integer mark = Optional.ofNullable(count).orElse(0);
+        Set<Object> set = (Set<Object>)redisTemplate.execute((RedisCallback) (connection) -> {
+            Set<Object> binaryKeys = new HashSet<>();
+            Cursor<byte[]> cursor = connection.scan( new ScanOptions.ScanOptionsBuilder().match(pattern).count(1000).build());
+            if(mark == 0){
+                while (cursor.hasNext()) {
+                    binaryKeys.add(new String(cursor.next()));
+                }
+                return binaryKeys;
+            }
+            IntStream.range(0, count).forEach(e -> {
+                if(cursor.hasNext()){
+                    binaryKeys.add(new String(cursor.next()));
+                }
+            });
+            return binaryKeys;
+        });
+        return set;
+    }
+
+    /**
+     * @author dongganen
+     * @date 2019/5/20
+     * @desc: hmset实现 数据不宜超过5w
+     */
+    public void hmset(String key, Map<String, Object> map){
+        redisTemplate.opsForHash().putAll(key, map);
+    }
+
+    /**
+     * @author dongganen
      * @date 2019/5/7
      * @desc: 生成唯一key
      */
     @Override
-    public long incrementHash(String key, String hashValue, Long increment){
+    public long createPrimaryKey(String key, String hashValue, Long increment){
         try {
             increment = Optional.ofNullable(increment).orElse(1l);
             return redisTemplate.opsForHash().increment(key, hashValue, increment);
@@ -73,6 +118,34 @@ public class RedisCatchManage implements CatchManage{
             }
             return first + Long.valueOf(String.format("%16d", randNo).trim());
         }
+    }
+
+    /**
+     * @param pattern
+     * @param count
+     * @return
+     * @desc: hash数据key模糊查询 + 分页
+     */
+    @Override
+    public Set hscan(String key, String pattern, Integer count){
+        Integer mark = Optional.ofNullable(count).orElse(0);
+        Set<Object> set = (Set<Object>)redisTemplate.execute((RedisCallback) (connection) -> {
+            Set<Object> binaryKeys = new HashSet<>();
+            Cursor<Map.Entry<byte[], byte[]>> cursor = connection.hScan(key.getBytes(), new ScanOptions.ScanOptionsBuilder().match(pattern).count(1000).build());
+            if(mark == 0){
+                while (cursor.hasNext()) {
+                    binaryKeys.add(new String(cursor.next().getValue()));
+                }
+                return binaryKeys;
+            }
+            IntStream.range(0, count).forEach(e -> {
+                if(cursor.hasNext()){
+                    binaryKeys.add(new String(cursor.next().getValue()));
+                }
+            });
+            return binaryKeys;
+        });
+        return set;
     }
 
     /**
@@ -124,34 +197,6 @@ public class RedisCatchManage implements CatchManage{
         String[] keys = setMapCommon(map1, map2);
         Set union = redisTemplate.opsForSet().union(keys[0], keys[1]);
         return (List) union.stream().map(e -> e.toString().split(":")[0]).collect(Collectors.toList());
-    }
-
-    /**
-     * @param pattern
-     * @param count
-     * @return
-     * @desc: key模糊查询 + 分页
-     */
-    @Override
-    public Set scan(String pattern, Integer count){
-        Integer mark = Optional.ofNullable(count).orElse(0);
-        Set<Object> set = (Set<Object>)redisTemplate.execute((RedisCallback) (connection) -> {
-            Set<Object> binaryKeys = new HashSet<>();
-            Cursor<byte[]> cursor = connection.scan( new ScanOptions.ScanOptionsBuilder().match(pattern).count(1000).build());
-            if(mark == 0){
-                while (cursor.hasNext()) {
-                    binaryKeys.add(new String(cursor.next()));
-                }
-                return binaryKeys;
-            }
-            IntStream.range(0, count).forEach(e -> {
-                if(cursor.hasNext()){
-                    binaryKeys.add(new String(cursor.next()));
-                }
-            });
-            return binaryKeys;
-        });
-        return set;
     }
 
 }

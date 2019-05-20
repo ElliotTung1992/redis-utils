@@ -104,9 +104,29 @@ public class TestController {
 //            return cursor;
 //        });
 
-        Set scan = catchManage.scan("hello:*", null);
-        System.out.println(scan.size());
-        System.out.println(scan);
+//        Set scan = catchManage.scan("hello:*", null);
+//        System.out.println(scan.size());
+//        System.out.println(scan);
+
+        long start = System.currentTimeMillis();
+//        Map<String, Object> map = new HashMap();
+//        for (int i = 0; i < 50000; i++){
+//            map.put(i + "", "hahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahaha" + i);
+//        }
+//        catchManage.hmset("hello:",map);
+//        for (int i = 0; i < 10; i++){
+//            Map<String, Object> map = new HashMap();
+//            for (int j = 0; j < 10000; j++){
+//                map.put("00" + j, "hahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahaha");
+//            }
+//            catchManage.mset(map);
+//        }
+        Set hscan = catchManage.hscan("hello:","*", 100);
+        System.out.println(hscan.size());
+        long end = System.currentTimeMillis();
+        System.out.println(end - start);
+//        Map<String, Object> map = new HashMap();
+//        catchManage.mset(map);
 
         return null;
     }
