@@ -1,5 +1,6 @@
 package com.github.dge1992.springbootredis;
 
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -16,6 +17,15 @@ public class CommonUils {
      */
     public static String getUUID(){
         return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    /**
+     * @author dongganen
+     * @date 2019/5/20
+     * @desc: 获取一个随机数
+     */
+    public static int getRandomInt(Integer i){
+        return new Random().nextInt(i) + 1;
     }
 
 }
