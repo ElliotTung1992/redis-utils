@@ -131,7 +131,7 @@ public class RedisCatchManage implements CatchManage{
         Integer mark = Optional.ofNullable(count).orElse(0);
         Set<Object> set = (Set<Object>)redisTemplate.execute((RedisCallback) (connection) -> {
             Set<Object> binaryKeys = new HashSet<>();
-            Cursor<Map.Entry<byte[], byte[]>> cursor = connection.hScan(key.getBytes(), new ScanOptions.ScanOptionsBuilder().match(pattern).count(1000).build());
+            Cursor<Map.Entry<byte[], byte[]>> cursor = connection.hScan(key.getBytes(), new ScanOptions.ScanOptionsBuilder().match(pattern).count(10000).build());
             if(mark == 0){
                 while (cursor.hasNext()) {
                     binaryKeys.add(new String(cursor.next().getValue()));

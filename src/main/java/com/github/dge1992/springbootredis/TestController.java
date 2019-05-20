@@ -108,7 +108,8 @@ public class TestController {
 //        System.out.println(scan.size());
 //        System.out.println(scan);
 
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
+
 //        Map<String, Object> map = new HashMap();
 //        for (int i = 0; i < 50000; i++){
 //            map.put(i + "", "hahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahaha" + i);
@@ -121,10 +122,10 @@ public class TestController {
 //            }
 //            catchManage.mset(map);
 //        }
-        Set hscan = catchManage.hscan("hello:","*", 100);
-        System.out.println(hscan.size());
-        long end = System.currentTimeMillis();
-        System.out.println(end - start);
+//        Set hscan = catchManage.hscan("hello:","*", 5000);
+//        System.out.println(hscan.size());
+//        long end = System.currentTimeMillis();
+//        System.out.println(end - start);
 //        Map<String, Object> map = new HashMap();
 //        catchManage.mset(map);
 
