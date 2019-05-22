@@ -7,7 +7,7 @@ package com.github.dge1992.springbootredis;
  */
 public enum TimeEnum {
     //加一个随机数防止缓存雪崩
-    ONE_MINUTE(1 * 60 * 1000l + CommonUils.getRandomInt(10), "一分钟"),
+    ONE_MINUTE(1 * 60 * 1000l + CommonUtils.getRandomInt(10), "一分钟"),
     ONE_HOUR(60 * TimeEnum.ONE_MINUTE.key, "一小时"),
     ONE_DAY(24 * TimeEnum.ONE_MINUTE.key, "一天"),
     ONE_WEEK(7 * TimeEnum.ONE_DAY.key, "一周"),

@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
  * @Date 2019/5/6
  **/
 @Component
-public class RedisCatchManage implements CatchManage{
+public class RedisCacheManage implements CacheManage {
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -154,8 +154,8 @@ public class RedisCatchManage implements CatchManage{
      * @desc: set数据类型 交集 差集 并集公共部分
      */
     public String[] setMapCommon(Map<String, Object> map1, Map<String, Object> map2){
-        String diffKeyOne = CommonUils.getUUID();
-        String diffKeyTwo = CommonUils.getUUID();
+        String diffKeyOne = CommonUtils.getUUID();
+        String diffKeyTwo = CommonUtils.getUUID();
         map1.entrySet().stream().forEach(e -> redisTemplate.opsForSet().add(diffKeyOne,e.getKey() + ":" + e.getValue()));
         map2.entrySet().stream().forEach(e -> redisTemplate.opsForSet().add(diffKeyTwo,e.getKey() + ":" + e.getValue()));
         this.expire(diffKeyOne, TimeEnum.ONE_MINUTE.getKey());

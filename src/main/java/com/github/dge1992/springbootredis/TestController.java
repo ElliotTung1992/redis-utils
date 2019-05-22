@@ -1,20 +1,11 @@
 package com.github.dge1992.springbootredis;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 /**
  * @Author dongganene
@@ -26,7 +17,7 @@ import java.util.stream.IntStream;
 public class TestController {
 
     @Autowired
-    private CatchManage catchManage;
+    private CacheManage catchManage;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -104,7 +95,9 @@ public class TestController {
 //            return cursor;
 //        });
 
-//        Set scan = catchManage.scan("hello:*", null);
+        Set scan = catchManage.scan("company_name:宁波*", 10);
+        System.out.println(scan.size());
+        System.out.println(scan);
 //        System.out.println(scan.size());
 //        System.out.println(scan);
 

@@ -8,7 +8,7 @@ import java.util.UUID;
  * @Description 公共方法工具
  * @Date 2019/5/8
  **/
-public class CommonUils {
+public class CommonUtils {
 
     /**
      * @author dongganen
