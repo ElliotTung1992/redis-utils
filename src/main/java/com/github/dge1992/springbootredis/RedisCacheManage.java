@@ -23,54 +23,28 @@ public class RedisCacheManage implements CacheManage {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    /**
-     * @author dongganen
-     * @date 2019/5/9
-     * @desc: 设置key的过期时间
-     */
     @Override
-    public void expire(String key, long timeout){
+    public void expireKey(String key, long timeout){
         redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * @param key
-     * @param value
-     * @param <V>
-     */
     @Override
-    public <V> void set(String key, V value) {
+    public void insertValue(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/9
-     * @desc: 新增key并设置过期时间
-     */
     @Override
-    public <V> void set(String key, V value, long timeout) {
+    public void insertValue(String key, Object value, long timeout) {
         redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/20
-     * @desc: 批量导入 数据不宜超过10w
-     */
     @Override
-    public <V> void mset(Map<String, V> map){
+    public void batchInsertValue(Map<String, Object> map){
         redisTemplate.opsForValue().multiSet(map);
     }
 
-    /**
-     * @param pattern
-     * @param count
-     * @return
-     * @desc: key模糊查询 + 分页
-     */
     @Override
-    public Set scan(String pattern, Integer count){
+    public Set getKeyByLike(String pattern, Integer count){
         Integer mark = Optional.ofNullable(count).orElse(0);
         Set<Object> set = (Set<Object>)redisTemplate.execute((RedisCallback) (connection) -> {
             Set<Object> binaryKeys = new HashSet<>();
@@ -91,20 +65,19 @@ public class RedisCacheManage implements CacheManage {
         return set;
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/20
-     * @desc: hmset实现 数据不宜超过5w
-     */
-    public void hmset(String key, Map<String, Object> map){
+    @Override
+    public boolean existsKey(String key) {
+        return (Boolean) redisTemplate.execute((RedisCallback) (connection) -> {
+            Boolean exists = connection.exists(key.getBytes());
+            return exists;
+        });
+    }
+
+    @Override
+    public void batchInsertHash(String key, Map<String, Object> map){
         redisTemplate.opsForHash().putAll(key, map);
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/7
-     * @desc: 生成唯一key
-     */
     @Override
     public long createPrimaryKey(String key, String hashValue, Long increment){
         try {
@@ -120,14 +93,8 @@ public class RedisCacheManage implements CacheManage {
         }
     }
 
-    /**
-     * @param pattern
-     * @param count
-     * @return
-     * @desc: hash数据key模糊查询 + 分页
-     */
     @Override
-    public Set hscan(String key, String pattern, Integer count){
+    public Set getKeyByLikeHash(String key, String pattern, Integer count){
         Integer mark = Optional.ofNullable(count).orElse(0);
         Set<Object> set = (Set<Object>)redisTemplate.execute((RedisCallback) (connection) -> {
             Set<Object> binaryKeys = new HashSet<>();
@@ -148,26 +115,16 @@ public class RedisCacheManage implements CacheManage {
         return set;
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/13
-     * @desc: set数据类型 交集 差集 并集公共部分
-     */
     public String[] setMapCommon(Map<String, Object> map1, Map<String, Object> map2){
         String diffKeyOne = CommonUtils.getUUID();
         String diffKeyTwo = CommonUtils.getUUID();
         map1.entrySet().stream().forEach(e -> redisTemplate.opsForSet().add(diffKeyOne,e.getKey() + ":" + e.getValue()));
         map2.entrySet().stream().forEach(e -> redisTemplate.opsForSet().add(diffKeyTwo,e.getKey() + ":" + e.getValue()));
-        this.expire(diffKeyOne, TimeEnum.ONE_MINUTE.getKey());
-        this.expire(diffKeyTwo, TimeEnum.ONE_MINUTE.getKey());
+        this.expireKey(diffKeyOne, TimeEnum.ONE_MINUTE.getKey());
+        this.expireKey(diffKeyTwo, TimeEnum.ONE_MINUTE.getKey());
         return new String[]{diffKeyOne, diffKeyTwo};
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/8
-     * @desc: 比对两个map取差集,返回差集的key
-     */
     @Override
     public List diffMap(Map<String, Object> map1, Map<String, Object> map2){
         String[] keys = setMapCommon(map1, map2);
@@ -175,11 +132,6 @@ public class RedisCacheManage implements CacheManage {
         return (List) difference.stream().map(e -> e.toString().split(":")[0]).collect(Collectors.toList());
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/8
-     * @desc: 比对两个map取交集,返回交集的key
-     */
     @Override
     public List interMap(Map<String, Object> map1, Map<String, Object> map2){
         String[] keys = setMapCommon(map1, map2);
@@ -187,11 +139,6 @@ public class RedisCacheManage implements CacheManage {
         return (List) inter.stream().map(e -> e.toString().split(":")[0]).collect(Collectors.toList());
     }
 
-    /**
-     * @author dongganen
-     * @date 2019/5/10
-     * @desc: 比对两个map取并集,返回交集的key
-     */
     @Override
     public List unionMap(Map<String, Object> map1, Map<String, Object> map2){
         String[] keys = setMapCommon(map1, map2);
