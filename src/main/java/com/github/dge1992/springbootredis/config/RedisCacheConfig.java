@@ -1,6 +1,7 @@
 package com.github.dge1992.springbootredis.config;
 
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
+import com.github.dge1992.springbootredis.pubsub.KeyEventExpiredReceiver;
 import com.github.dge1992.springbootredis.pubsub.MessageAdapterReceiver;
 import com.github.dge1992.springbootredis.pubsub.MessageReceiver;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -42,19 +43,26 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
 
     @Bean
     RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory, MessageReceiver messageReceiver,
-                                            MessageListenerAdapter messageListenerAdapter) {
+                                            MessageListenerAdapter listenerAdapter,
+                                            MessageListenerAdapter keyEventExpiredAdapter) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         //订阅
         container.addMessageListener(messageReceiver, new PatternTopic("hello*"));
         //使用适配器
-        container.addMessageListener(messageListenerAdapter,  new PatternTopic("hi*"));
+        container.addMessageListener(listenerAdapter,  new PatternTopic("hi*"));
+        container.addMessageListener(keyEventExpiredAdapter,  new PatternTopic("__keyevent@0__:expired"));
         return container;
     }
 
-    @Bean
+    @Bean("listenerAdapter")
     MessageListenerAdapter listenerAdapter(MessageAdapterReceiver receiver) {
         return new MessageListenerAdapter(receiver, "receiveMessage");
+    }
+
+    @Bean("keyEventExpiredAdapter")
+    MessageListenerAdapter keyEventExpiredAdapter(KeyEventExpiredReceiver keyEventExpiredReceiver) {
+        return new MessageListenerAdapter(keyEventExpiredReceiver, "receiveMessage");
     }
 
 }
