@@ -1,4 +1,4 @@
-package com.github.dge1992.springbootredis;
+package com.github.dge1992.springbootredis.utils;
 
 import java.util.Random;
 import java.util.UUID;

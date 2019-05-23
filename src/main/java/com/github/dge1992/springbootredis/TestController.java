@@ -1,11 +1,16 @@
 package com.github.dge1992.springbootredis;
 
+import com.github.dge1992.springbootredis.pubsub.MessageSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author dongganene
@@ -21,6 +26,9 @@ public class TestController {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private MessageSender messageSender;
 
     @RequestMapping("/test")
     public Object test(){
@@ -95,9 +103,9 @@ public class TestController {
 //            return cursor;
 //        });
 
-        Set scan = catchManage.scan("company_name:宁波*", 10);
-        System.out.println(scan.size());
-        System.out.println(scan);
+//        Set scan = catchManage.scan("company_name:宁波*", 10);
+//        System.out.println(scan.size());
+//        System.out.println(scan);
 //        System.out.println(scan.size());
 //        System.out.println(scan);
 
@@ -121,6 +129,33 @@ public class TestController {
 //        System.out.println(end - start);
 //        Map<String, Object> map = new HashMap();
 //        catchManage.mset(map);
+
+//        System.out.println(catchManage.leftPush("hello", "11111"));
+//        System.out.println(catchManage.leftPush("hello", "22222"));
+//        catchManage.leftPush("hello", "33333");
+//
+//        Object obj = catchManage.rightPop("hello");
+//        System.out.println(obj);
+
+//        ExecutorService executorService = Executors.newCachedThreadPool();
+//        executorService.execute(() -> {
+//            try {
+//                Thread.sleep(60000);
+//                catchManage.leftPush("hello", "hi");
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        System.out.println(catchManage.leftPop("hello", 55, TimeUnit.SECONDS));
+
+
+//        catchManage.publish("hello", "hello redis");
+//        redisTemplate.convertAndSend("hello", "hello redis");
+
+//        redisTemplate.convertAndSend("hello:1111",String.valueOf(Math.random()));
+
+        messageSender.sendMessage("hello:111", "hello redis");
+        messageSender.sendMessage("hi:111", "hi redis");
 
         return null;
     }

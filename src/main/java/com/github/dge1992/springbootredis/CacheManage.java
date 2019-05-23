@@ -3,10 +3,12 @@ package com.github.dge1992.springbootredis;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public interface CacheManage {
 
-    /******key******/
+    /************************key************************/
+
     /**
      * @author dongganen
      * @date 2019/5/9
@@ -46,11 +48,64 @@ public interface CacheManage {
     /**
      * @author dongganen
      * @date 2019/5/22
-     * @desc:
+     * @desc: 查看key是否存在
      */
     boolean existsKey(String key);
 
-    /******hash******/
+    /************************list************************/
+
+    /**
+     * @author dongganen
+     * @date 2019/5/22
+     * @desc: 左边放入
+     */
+    Long leftPush(String key, Object value);
+
+    /**
+     * @author dongganen
+     * @date 2019/5/22
+     * @desc: 左边全部放入
+     */
+    Long leftPushAll(String key, Object... value);
+
+    /**
+     * @author dongganen
+     * @date 2019/5/22
+     * @desc: 左边拿出
+     */
+    Object leftPop(String key);
+
+    /**
+     * @author dongganen
+     * @date 2019/5/22
+     * @desc: 左边拿出
+     */
+    Object leftPop(String key, long timeout, TimeUnit unit);
+
+    /**
+     * @author dongganen
+     * @date 2019/5/22
+     * @desc: 右边放入
+     */
+    Long rightPush(String key, Object value);
+
+    /**
+     * @author dongganen
+     * @date 2019/5/22
+     * @desc: 右边全部放入
+     */
+    Long rightPushAll(String key, Object... value);
+
+    /**
+     * @author dongganen
+     * @date 2019/5/22
+     * @desc: 右边拿出
+     */
+    Object rightPop(String key);
+
+
+    /************************hash************************/
+
     /**
      * @author dongganen
      * @date 2019/5/20
@@ -73,7 +128,8 @@ public interface CacheManage {
      */
     Set getKeyByLikeHash(String key, String pattern, Integer count);
 
-    /******set******/
+    /************************set************************/
+
     /**
      * @author dongganen
      * @date 2019/5/8

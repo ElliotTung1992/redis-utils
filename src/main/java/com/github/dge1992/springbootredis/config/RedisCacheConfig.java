@@ -1,12 +1,17 @@
-package com.github.dge1992.springbootredis;
+package com.github.dge1992.springbootredis.config;
 
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
+import com.github.dge1992.springbootredis.pubsub.MessageAdapterReceiver;
+import com.github.dge1992.springbootredis.pubsub.MessageReceiver;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
@@ -33,6 +38,23 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         //开启事务
         template.setEnableTransactionSupport(true);
         return template;
+    }
+
+    @Bean
+    RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory, MessageReceiver messageReceiver,
+                                            MessageListenerAdapter messageListenerAdapter) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        //订阅
+        container.addMessageListener(messageReceiver, new PatternTopic("hello*"));
+        //使用适配器
+        container.addMessageListener(messageListenerAdapter,  new PatternTopic("hi*"));
+        return container;
+    }
+
+    @Bean
+    MessageListenerAdapter listenerAdapter(MessageAdapterReceiver receiver) {
+        return new MessageListenerAdapter(receiver, "receiveMessage");
     }
 
 }

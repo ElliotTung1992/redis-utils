@@ -1,5 +1,7 @@
 package com.github.dge1992.springbootredis;
 
+import com.github.dge1992.springbootredis.utils.CommonUtils;
+import com.github.dge1992.springbootredis.utils.TimeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
@@ -71,6 +73,41 @@ public class RedisCacheManage implements CacheManage {
             Boolean exists = connection.exists(key.getBytes());
             return exists;
         });
+    }
+
+    @Override
+    public Long leftPush(String key, Object value) {
+        return redisTemplate.opsForList().leftPush(key, value);
+    }
+
+    @Override
+    public Long leftPushAll(String key, Object... value) {
+        return redisTemplate.opsForList().leftPushAll(key,value);
+    }
+
+    @Override
+    public Object leftPop(String key) {
+        return redisTemplate.opsForList().leftPop(key);
+    }
+
+    @Override
+    public Object leftPop(String key, long timeout, TimeUnit unit) {
+        return redisTemplate.opsForList().leftPop(key, timeout, unit);
+    }
+
+    @Override
+    public Long rightPush(String key, Object value) {
+        return redisTemplate.opsForList().rightPush(key, value);
+    }
+
+    @Override
+    public Long rightPushAll(String key, Object... value) {
+        return redisTemplate.opsForList().rightPushAll(key, value);
+    }
+
+    @Override
+    public Object rightPop(String key) {
+        return redisTemplate.opsForList().rightPop(key);
     }
 
     @Override
