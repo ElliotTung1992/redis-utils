@@ -31,17 +31,17 @@ public class RedisCacheManage implements CacheManage {
     }
 
     @Override
-    public void insertValue(String key, Object value) {
+    public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
 
     @Override
-    public void insertValue(String key, Object value, long timeout) {
+    public void set(String key, Object value, long timeout) {
         redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public void batchInsertValue(Map<String, Object> map){
+    public void multiSet(Map<String, Object> map){
         redisTemplate.opsForValue().multiSet(map);
     }
 
@@ -68,7 +68,7 @@ public class RedisCacheManage implements CacheManage {
     }
 
     @Override
-    public boolean existsKey(String key) {
+    public boolean exists(String key) {
         return (Boolean) redisTemplate.execute((RedisCallback) (connection) -> {
             Boolean exists = connection.exists(key.getBytes());
             return exists;
@@ -152,7 +152,7 @@ public class RedisCacheManage implements CacheManage {
         return set;
     }
 
-    public String[] setMapCommon(Map<String, Object> map1, Map<String, Object> map2){
+    public String[] executeMapCommon(Map<String, Object> map1, Map<String, Object> map2){
         String diffKeyOne = CommonUtils.getUUID();
         String diffKeyTwo = CommonUtils.getUUID();
         map1.entrySet().stream().forEach(e -> redisTemplate.opsForSet().add(diffKeyOne,e.getKey() + ":" + e.getValue()));
@@ -164,23 +164,37 @@ public class RedisCacheManage implements CacheManage {
 
     @Override
     public List diffMap(Map<String, Object> map1, Map<String, Object> map2){
-        String[] keys = setMapCommon(map1, map2);
+        String[] keys = executeMapCommon(map1, map2);
         Set difference = redisTemplate.opsForSet().difference(keys[0], keys[1]);
         return (List) difference.stream().map(e -> e.toString().split(":")[0]).collect(Collectors.toList());
     }
 
     @Override
     public List interMap(Map<String, Object> map1, Map<String, Object> map2){
-        String[] keys = setMapCommon(map1, map2);
+        String[] keys = executeMapCommon(map1, map2);
         Set inter = redisTemplate.opsForSet().intersect(keys[0], keys[1]);
         return (List) inter.stream().map(e -> e.toString().split(":")[0]).collect(Collectors.toList());
     }
 
     @Override
     public List unionMap(Map<String, Object> map1, Map<String, Object> map2){
-        String[] keys = setMapCommon(map1, map2);
+        String[] keys = executeMapCommon(map1, map2);
         Set union = redisTemplate.opsForSet().union(keys[0], keys[1]);
         return (List) union.stream().map(e -> e.toString().split(":")[0]).collect(Collectors.toList());
+    }
+
+    @Override
+    public void multi(){
+        redisTemplate.multi();
+    }
+
+    @Override
+    public List exec(){
+        return redisTemplate.exec();
+    }
+
+    public void watch(Object key){
+        redisTemplate.watch(key);
     }
 
 }

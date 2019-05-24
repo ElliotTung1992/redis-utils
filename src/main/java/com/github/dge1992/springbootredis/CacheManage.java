@@ -21,21 +21,21 @@ public interface CacheManage {
      * @date 2019/5/9
      * @desc: 新增key
      */
-    void insertValue(String key, Object value);
+    void set(String key, Object value);
 
     /**
      * @author dongganen
      * @date 2019/5/9
      * @desc: 新增key并设置过期时间
      */
-    void insertValue(String key, Object value, long timeout);
+    void set(String key, Object value, long timeout);
 
     /**
      * @author dongganen
      * @date 2019/5/20
      * @desc: 批量导入 数据不宜超过10w
      */
-    void batchInsertValue(Map<String, Object> map);
+    void multiSet(Map<String, Object> map);
 
     /**
      * @param pattern
@@ -50,7 +50,7 @@ public interface CacheManage {
      * @date 2019/5/22
      * @desc: 查看key是否存在
      */
-    boolean existsKey(String key);
+    boolean exists(String key);
 
     /************************list************************/
 
@@ -150,5 +150,28 @@ public interface CacheManage {
      * @desc: 比对两个map取并集,返回交集的key
      */
     List unionMap(Map<String, Object> map1, Map<String, Object> map2);
+
+    /************************事务************************/
+
+    /**
+     * @author dongganen
+     * @date 2019/5/24
+     * @desc: 开启redis事务
+     */
+     void multi();
+
+    /**
+     * @author dongganen
+     * @date 2019/5/24
+     * @desc: 结束redis事务
+     */
+    List exec();
+
+    /**
+     * @author dongganen
+     * @date 2019/5/24
+     * @desc: 监视一个key
+     */
+    void watch(Object key);
 
 }

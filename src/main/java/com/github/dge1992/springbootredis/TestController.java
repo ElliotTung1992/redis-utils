@@ -7,6 +7,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,7 +32,7 @@ public class TestController {
     private MessageSender messageSender;
 
     @RequestMapping("/test")
-    public Object test(){
+    public Object test() throws InterruptedException {
 //        return catchManage.incrementHash(CatchConstant.HASHRANDOMKEY, CatchConstant.ID, 5l);
 //        Map<String, Object> map1 = new HashMap<>();
 //        map1.put("age", "23");
@@ -154,8 +155,18 @@ public class TestController {
 
 //        redisTemplate.convertAndSend("hello:1111",String.valueOf(Math.random()));
 
-        messageSender.sendMessage("hello:111", "hello redis");
-        messageSender.sendMessage("hi:111", "hi redis");
+//        messageSender.sendMessage("hello:111", "hello redis");
+//        messageSender.sendMessage("hi:111", "hi redis");
+
+
+//        catchManage.insertValue("hello", 1);
+        catchManage.watch("hello");
+        catchManage.multi();
+        redisTemplate.opsForValue().increment("hello");
+        Thread.sleep(30000);
+        redisTemplate.opsForValue().increment("hello");
+        List exec = catchManage.exec();
+        System.out.println(exec);
 
         return null;
     }
