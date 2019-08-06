@@ -1,17 +1,14 @@
-package com.github.dge1992.springbootredis;
+package com.github.dge1992.springbootredis.test;
 
+import com.github.dge1992.springbootredis.cache.CacheManage;
+import com.github.dge1992.springbootredis.domain.User;
 import com.github.dge1992.springbootredis.pubsub.MessageSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author dongganene
@@ -33,6 +30,12 @@ public class TestController {
 
     @RequestMapping("/test")
     public Object test() throws InterruptedException {
+
+        User user1 = (User) redisTemplate.opsForValue().get("findByUser1::哈哈");
+        User user2 = (User) redisTemplate.opsForValue().get("findByUser2::哈哈");
+        System.out.println(user1);
+        System.out.println(user2);
+//        catchManage.set("姓名", "张三");
 //        return catchManage.incrementHash(CatchConstant.HASHRANDOMKEY, CatchConstant.ID, 5l);
 //        Map<String, Object> map1 = new HashMap<>();
 //        map1.put("age", "23");
@@ -160,14 +163,14 @@ public class TestController {
 
 
 //        catchManage.insertValue("hello", 1);
-        catchManage.watch("hello");
-        catchManage.multi();
-        redisTemplate.opsForValue().increment("hello");
-        Thread.sleep(30000);
-        redisTemplate.opsForValue().increment("hello");
-        List exec = catchManage.exec();
-        System.out.println(exec);
-
+//        catchManage.watch("hello");
+//        catchManage.multi();
+//        redisTemplate.opsForValue().increment("hello");
+//        Thread.sleep(30000);
+//        redisTemplate.opsForValue().increment("hello");
+//        List exec = catchManage.exec();
+//        System.out.println(exec);
+//
         return null;
     }
 }

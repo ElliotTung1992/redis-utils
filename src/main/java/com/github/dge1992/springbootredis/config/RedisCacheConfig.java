@@ -1,18 +1,25 @@
 package com.github.dge1992.springbootredis.config;
 
+import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
 import com.github.dge1992.springbootredis.pubsub.KeyEventExpiredReceiver;
 import com.github.dge1992.springbootredis.pubsub.MessageAdapterReceiver;
 import com.github.dge1992.springbootredis.pubsub.MessageReceiver;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
@@ -23,6 +30,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisCacheConfig extends CachingConfigurerSupport {
 
+    /**
+     * @author dongganen
+     * @date 2019/8/6
+     * @desc: 设置RedisTemplate的序列化方式
+     */
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
         StringRedisTemplate template = new StringRedisTemplate(factory);
@@ -39,6 +51,34 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         //开启事务
         template.setEnableTransactionSupport(true);
         return template;
+    }
+
+    /**
+     * @author dongganen
+     * @date 2019/8/6
+     * @desc: RedisCacheConfiguration类会判断是否存在RedisCacheConfiguration，不存在创建默认的配置，默认配置使用jdk序列化方式
+     */
+    @Bean
+    public RedisCacheConfiguration redisCacheConfiguration(CacheProperties cacheProperties) {
+        RedisSerializer serializer = new FastJsonRedisSerializer(Object.class);
+        CacheProperties.Redis redisProperties = cacheProperties.getRedis();
+        RedisCacheConfiguration config = RedisCacheConfiguration
+                .defaultCacheConfig();
+        config = config.serializeValuesWith(RedisSerializationContext.SerializationPair
+                .fromSerializer(serializer));
+        if (redisProperties.getTimeToLive() != null) {
+            config = config.entryTtl(redisProperties.getTimeToLive());
+        }
+        if (redisProperties.getKeyPrefix() != null) {
+            config = config.prefixKeysWith(redisProperties.getKeyPrefix());
+        }
+        if (!redisProperties.isCacheNullValues()) {
+            config = config.disableCachingNullValues();
+        }
+        if (!redisProperties.isUseKeyPrefix()) {
+            config = config.disableKeyPrefix();
+        }
+        return config;
     }
 
     @Bean

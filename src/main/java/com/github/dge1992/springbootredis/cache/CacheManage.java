@@ -1,4 +1,4 @@
-package com.github.dge1992.springbootredis;
+package com.github.dge1992.springbootredis.cache;
 
 import java.util.List;
 import java.util.Map;
