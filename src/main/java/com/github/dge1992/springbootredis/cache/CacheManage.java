@@ -18,6 +18,13 @@ public interface CacheManage {
 
     /**
      * @author dongganen
+     * @date 2019/8/6
+     * @desc: 根据key获取对象
+     */
+    Object get(String key);
+
+    /**
+     * @author dongganen
      * @date 2019/5/9
      * @desc: 新增key
      */

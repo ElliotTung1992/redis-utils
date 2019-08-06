@@ -31,6 +31,11 @@ public class RedisCacheManage implements CacheManage {
     }
 
     @Override
+    public Object get(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    @Override
     public void set(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
